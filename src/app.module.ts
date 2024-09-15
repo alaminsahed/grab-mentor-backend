@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseController } from './database-connection/database.controller';
 import { DatabaseService } from './database-connection/database.service';
 import { ConfigModule } from '@nestjs/config';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ConfigModule } from '@nestjs/config';
       logging: true,
       logger: 'advanced-console',
     }),
+    UsersModule,
   ],
   controllers: [AppController, DatabaseController],
   providers: [AppService, DatabaseService],
