@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { Role } from '../enums/role.enum';
+import { Role } from '../../enums/role.enum';
 import {
   IsEmail,
   IsEnum,
@@ -26,6 +26,10 @@ export class User {
   @Column()
   @IsMobilePhone()
   mobile: string;
+
+  @Column()
+  @IsString()
+  password: string;
 
   @Column()
   @IsString()

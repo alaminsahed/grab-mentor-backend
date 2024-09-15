@@ -5,11 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseController } from './database-connection/database.controller';
 import { DatabaseService } from './database-connection/database.service';
 import { ConfigModule } from '@nestjs/config';
-import { UsersModule } from './users/users.module';
-
+import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
@@ -22,7 +23,7 @@ import { UsersModule } from './users/users.module';
       logging: true,
       logger: 'advanced-console',
     }),
-    UsersModule,
+    AuthModule,
   ],
   controllers: [AppController, DatabaseController],
   providers: [AppService, DatabaseService],

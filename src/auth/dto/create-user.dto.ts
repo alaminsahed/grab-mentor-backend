@@ -8,7 +8,7 @@ import {
   IsUrl,
   Length,
 } from 'class-validator';
-import { Role } from '../enums/role.enum';
+import { Role } from '../../enums/role.enum';
 
 export class CreateUserDto {
   @ApiProperty()
@@ -23,6 +23,10 @@ export class CreateUserDto {
   @ApiProperty()
   @IsMobilePhone()
   mobile: string;
+
+  @ApiProperty()
+  @IsString()
+  password: string;
 
   @ApiProperty()
   @IsString()

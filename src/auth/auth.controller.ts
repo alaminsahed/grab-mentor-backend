@@ -1,24 +1,22 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
-  Delete,
-  UseInterceptors,
+  Controller,
+  Post,
+  Request,
   UploadedFile,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { CreateUserDto } from './dto/create-user.dto';
+import { AuthService } from './auth.service';
+import { LocalAuthGuard } from './grauds/auth.guard';
 
-@ApiTags('Users')
-@Controller('users')
-export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+@ApiTags('Auth')
+@Controller('auth')
+export class AuthController {
+  constructor(private readonly authService: AuthService) {}
 
   @Post('register')
   @UseInterceptors(FileInterceptor('employIdImage'))
@@ -30,6 +28,7 @@ export class UsersController {
         name: { type: 'string' },
         email: { type: 'string' },
         mobile: { type: 'string' },
+        password: { type: 'string' },
         address: { type: 'string' },
         company: { type: 'string' },
         role: { type: 'string', enum: ['admin', 'user', 'tutor'] },
@@ -44,7 +43,7 @@ export class UsersController {
           format: 'binary',
         },
       },
-      required: ['name', 'email', 'mobile', 'address', 'role'],
+      required: ['name', 'email', 'mobile', 'address', 'role', 'password'],
     },
   })
   @ApiResponse({ status: 201, description: 'User registered successfully.' })
@@ -53,26 +52,24 @@ export class UsersController {
     @UploadedFile() file: Express.Multer.File,
     @Body() createUserDto: CreateUserDto,
   ) {
-    return await this.usersService.register(createUserDto, file?.path);
+    return await this.authService.register(createUserDto, file?.path);
   }
 
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  @UseGuards(LocalAuthGuard)
+  @Post('login')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string' },
+        password: { type: 'string' },
+      },
+      required: ['email', 'password'],
+    },
+  })
+  @ApiResponse({ status: 201, description: 'User logged in successfully.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async login(@Request() req: any) {
+    return this.authService.login(req.user);
   }
 }
