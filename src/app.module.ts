@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -6,6 +6,9 @@ import { DatabaseController } from './database-connection/database.controller';
 import { DatabaseService } from './database-connection/database.service';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { JwtAuthMiddleware } from './auth/middlewire/middleware';
+import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -23,9 +26,25 @@ import { AuthModule } from './auth/auth.module';
       logging: true,
       logger: 'advanced-console',
     }),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '1d' },
+      global: true,
+    }),
     AuthModule,
+    UsersModule,
   ],
   controllers: [AppController, DatabaseController],
   providers: [AppService, DatabaseService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(JwtAuthMiddleware)
+      .exclude(
+        { path: 'auth/register', method: RequestMethod.POST },
+        { path: 'auth/login', method: RequestMethod.POST },
+      )
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}

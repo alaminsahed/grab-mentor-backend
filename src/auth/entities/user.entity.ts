@@ -8,6 +8,7 @@ import {
   IsString,
   Length,
 } from 'class-validator';
+import { EmployeeStatus } from 'src/enums/status.enum';
 
 @Entity()
 export class User {
@@ -78,4 +79,17 @@ export class User {
   @IsOptional()
   @IsString()
   employIdImage?: string;
+
+  @Column({ nullable: true })
+  @IsOptional()
+  @IsString()
+  image?: string;
+
+  @Column({
+    type: 'enum',
+    enum: EmployeeStatus,
+    default: EmployeeStatus.Active,
+  })
+  @IsEnum(Role)
+  status: EmployeeStatus;
 }

@@ -11,7 +11,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuthService } from './auth.service';
-import { LocalAuthGuard } from './grauds/auth.guard';
+import { LocalAuthGuard } from './guards/auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -42,6 +42,11 @@ export class AuthController {
           type: 'string',
           format: 'binary',
         },
+        image: {
+          type: 'string',
+          format: 'binary',
+        },
+        status: { type: 'string', enum: ['active', 'inactive', 'blocked'] },
       },
       required: ['name', 'email', 'mobile', 'address', 'role', 'password'],
     },
